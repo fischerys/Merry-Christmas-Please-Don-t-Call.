@@ -11,7 +11,7 @@ pygame.mixer.init()
 # Konfigurasi Layar
 WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Merry Christmas, Please Don't Call - Sync Lyrics")
+pygame.display.set_caption("Merry Christmas, Please Don't Call - 9 Balok Sync")
 clock = pygame.time.Clock()
 
 # Warna
@@ -22,20 +22,25 @@ TEXT_COLOR = (255, 235, 235)
 PARTICLE_COLOR = (200, 50, 60)
 
 try:
-    font = pygame.font.SysFont("Georgia", 20, bold=True)
+    font = pygame.font.SysFont("Georgia", 18, bold=True)
 except Exception:
-    font = pygame.font.Font(None, 24)
+    font = pygame.font.Font(None, 22)
 
-# Data Lirik & Timestamp yang Disesuaikan dengan Detik Video
+# Data 9 Balok Lirik & Timestamp yang Sesuai dengan Video (dalam detik)
 # Format: ("Teks Lirik", Detik_Muncul, Posisi_Target_X, Posisi_Target_Y)
 lyrics_data = [
-    ("Just one ticket out of your heavy gaze", 0.2, 380, 180),
-    ("I want one ticket off of your carousel", 2.2, 850, 280),
-    ("And the toughest part is that we both know", 4.5, 380, 380),
-    ("Merry Christmas, please don't call", 8.2, 850, 480),
+    ("Just one ticket out of your heavy gaze", 3.0, 360, 90),
+    ("I want one ticket off of your carousel", 7.0, 860, 150),
+    ("I want one ticket out of your heavy gaze", 11.0, 360, 210),
+    ("I want one ticket off of your carousel", 15.0, 860, 270),
+    ("Only, you should know that I died slow", 20.5, 380, 340),
+    ("Running through the halls of your haunted home", 25.0, 840, 400),
+    ("And the toughest part is that we both know", 29.0, 380, 460),
+    ("What happened to you", 33.0, 840, 520),
+    ("Why you're out on your own", 35.5, 600, 580),
 ]
 
-# Jika ada file musik 'song.mp3', aktifkan 2 baris di bawah ini:
+# Aktifkan jika file musik 'song.mp3' berada di folder yang sama:
 # pygame.mixer.music.load("song.mp3")
 # pygame.mixer.music.play()
 
@@ -81,8 +86,8 @@ class FloatingCard:
         self.float_offset = random.uniform(0, math.pi * 2)
 
         self.text_surf = font.render(text, True, TEXT_COLOR)
-        self.padding_x = 22
-        self.padding_y = 14
+        self.padding_x = 20
+        self.padding_y = 12
         self.width = self.text_surf.get_width() + self.padding_x * 2
         self.height = self.text_surf.get_height() + self.padding_y * 2
 
@@ -93,9 +98,11 @@ class FloatingCard:
             else:
                 return
 
+        # Gerakan meluncur halus menuju posisi target
         self.x += (self.target_x - self.x) * 0.05
         self.y += (self.target_y - self.y) * 0.05
 
+        # Efek mengapung
         self.float_offset += 0.03
         self.current_y = self.y + math.sin(self.float_offset) * 6
 
@@ -107,6 +114,7 @@ class FloatingCard:
             (self.width + 12, self.height + 12), pygame.SRCALPHA
         )
 
+        # Bayangan 3D
         pygame.draw.rect(
             card_surf,
             (40, 5, 10, 180),
@@ -114,6 +122,7 @@ class FloatingCard:
             border_radius=8,
         )
 
+        # Balok Utama & Border
         pygame.draw.rect(
             card_surf, CARD_BG, (0, 0, self.width, self.height), border_radius=8
         )
@@ -125,8 +134,10 @@ class FloatingCard:
             border_radius=8,
         )
 
+        # Teks
         card_surf.blit(self.text_surf, (self.padding_x, self.padding_y))
 
+        # Rotasi saat melayang
         rot_angle = math.sin(self.float_offset * 0.5) * 2 + self.angle
         rotated_surf = pygame.transform.rotate(card_surf, rot_angle)
         new_rect = rotated_surf.get_rect(center=(self.x, self.current_y))
@@ -134,6 +145,7 @@ class FloatingCard:
         surface.blit(rotated_surf, new_rect.topleft)
 
 
+# Inisialisasi Objek
 particles = [Particle() for _ in range(70)]
 cards = [FloatingCard(text, t, x, y) for text, t, x, y in lyrics_data]
 start_ticks = pygame.time.get_ticks()
@@ -143,16 +155,19 @@ while running:
     clock.tick(60)
     screen.fill(BG_COLOR)
 
+    # Waktu berjalan dalam detik
     elapsed_seconds = (pygame.time.get_ticks() - start_ticks) / 1000.0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+    # Render Partikel Merah
     for p in particles:
         p.update()
         p.draw(screen)
 
+    # Render Balok Lirik
     for card in cards:
         card.update(elapsed_seconds)
         card.draw(screen)
